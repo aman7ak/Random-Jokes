@@ -1,26 +1,39 @@
 let joke = document.getElementById("joke");
 let punchline = document.getElementById("punchline");
 let btn = document.getElementById("btn");
-let emoji = ['🤣','😂','😅','😆','😄','😋'];
+let emoji = ["🤣", "😂", "😅", "😆", "😄", "😋"];
+let random;
+let promiseCall;
+let fetchCall;
 
-window.onload = ()=>{
+window.onload = () => {
   generateJoke();
-} 
+};
 
 async function generateJoke() {
-  let p1 = new Promise((resolve,reject)=>{
-    let p = fetch("https://official-joke-api.appspot.com/random_joke");
-    p.then((res) => res.json())
-    .then((val) => resolve(val));
-  })
-  let random = Math.floor(Math.random() * 6);
-  let obj = await p1;
-  joke.innerText = obj["setup"];
-  punchline.innerText = `Punchline: ${obj["punchline"]} ${emoji[random]}`;
-  console.log(random);
+  promiseCall = new Promise((resolve, reject) => {
+    fetchCall = fetch("https://official-joke-api.appspot.com/random_joke");
+    fetchCall
+      .then((res) => {
+        return res.json();
+      })
+      .then((val) => {
+        resolve(val);
+      })
+      .catch((err) => {
+        reject("Some error occured " + err);
+      });
+  });
+  random = Math.floor(Math.random() * 6);
+  try {
+    let obj = await promiseCall;
+    joke.innerText = obj["setup"];
+    punchline.innerText = `Punchline: ${obj["punchline"]} ${emoji[random]}`;
+  } catch (err) {
+    joke.innerText = err;
+  }
 }
 
-
 btn.addEventListener("click", () => {
-  generateJoke()
+  generateJoke();
 });
